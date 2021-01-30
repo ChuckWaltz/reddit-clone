@@ -29,14 +29,13 @@ class UserResponse {
 @Resolver(User)
 export class UserResolver {
   @Query(() => User, { nullable: true })
-  async me(@Ctx() { req }: MyContext) {
+  me(@Ctx() { req }: MyContext) {
     //User not logged in
     if (!req.session.userId) {
       return null;
     }
 
-    const res: User | undefined = await User.findOne(req.session.userId);
-    return res;
+    return User.findOne(req.session.userId);
   }
 
   @Mutation(() => UserResponse)
@@ -54,8 +53,7 @@ export class UserResolver {
       user.username = options.username;
       user.password = hashedPassword;
 
-      const res: User = await User.save(user);
-
+      const res = await User.save(user);
       console.log(res);
 
       // Save cookie
@@ -92,7 +90,7 @@ export class UserResolver {
     @Arg("password") password: string,
     @Ctx() { req }: MyContext
   ): Promise<UserResponse> {
-    const user: User | undefined = await User.findOne({
+    const user = await User.findOne({
       where: [{ username: usernameOrEmail }, { email: usernameOrEmail }], // Will execute OR
     });
     if (!user) {
@@ -143,7 +141,7 @@ export class UserResolver {
     @Arg("email") email: string,
     @Ctx() { redis }: MyContext
   ) {
-    const user: User | undefined = await User.findOne({
+    const user = await User.findOne({
       where: { email },
     });
     if (!user) {
@@ -200,6 +198,7 @@ export class UserResolver {
     }
 
     const user = await User.findOne(userId);
+
     if (!user) {
       return {
         errors: [
@@ -212,9 +211,8 @@ export class UserResolver {
     }
 
     const hashedPassword = await argon2.hash(newPassword);
-    user.password = hashedPassword;
 
-    await User.save(user);
+    await User.update(user.id, { password: hashedPassword });
 
     await redis.del(key); // Remove key so cannot reset again
 

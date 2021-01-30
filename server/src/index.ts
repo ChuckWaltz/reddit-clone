@@ -27,7 +27,7 @@ declare module "express-session" {
 }
 
 const main = async () => {
-  const conn = await createConnection({
+  await createConnection({
     type: "postgres",
     host: "192.168.1.79",
     port: 5432,
@@ -35,12 +35,12 @@ const main = async () => {
     password: "postgres",
     database: "redditclone",
     logging: true,
-    //synchronize: true,
+    synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [User, Post],
   });
 
-  await conn.runMigrations();
+  //await conn.runMigrations();
 
   const app = express();
 
