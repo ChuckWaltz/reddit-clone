@@ -8,6 +8,7 @@ import { toErrorMap } from "../utils/toErrorMap";
 import { useRouter } from "next/dist/client/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
+import { colorScheme } from "../utils/constants";
 
 interface RegisterProps {}
 
@@ -61,7 +62,7 @@ const Register: React.FC<RegisterProps> = ({}) => {
             <Button
               type="submit"
               isLoading={isSubmitting}
-              colorScheme="teal"
+              colorScheme={colorScheme}
               mt={4}
             >
               Register

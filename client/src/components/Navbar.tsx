@@ -4,11 +4,12 @@ import { DarkModeSwitch } from "./DarkModeSwitch";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { isServer } from "../utils/isServer";
+import { colorScheme } from "../utils/constants";
 
 interface NavbarProps {}
 
 const Navbar: React.FC<NavbarProps> = ({}) => {
-  const bg = useColorModeValue("gray.200", "rgb(25, 25, 25)");
+  const bg = useColorModeValue("white", "rgb(25, 25, 25)");
   const color = useColorModeValue("gray.800", "white");
 
   const [{ data, fetching }] = useMeQuery({ pause: isServer() }); // Pause options tells this to not run if on server (ssr) -- is causing console warning..??
@@ -22,7 +23,9 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     userLinks = (
       <>
         <NextLink href="/login">
-          <Button mr={5}>Login</Button>
+          <Button mr={5} colorScheme={colorScheme}>
+            Login
+          </Button>
         </NextLink>
         <NextLink href="/register">
           <Button mr={5}>Register</Button>
@@ -33,7 +36,9 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     // User logged in
     userLinks = (
       <>
-        <Button mr={5}>{data.me.username}</Button>
+        <Button mr={5} colorScheme={colorScheme}>
+          {data.me.username}
+        </Button>
         <Button
           onClick={async () => {
             logout();
@@ -54,6 +59,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       padding="15px 10px"
       justifyContent="flex-end"
       alignItems="center"
+      style={{ boxShadow: "0px 0px 1px 1px rgba(0,0,0,0.5)" }}
     >
       {userLinks}
       <DarkModeSwitch />

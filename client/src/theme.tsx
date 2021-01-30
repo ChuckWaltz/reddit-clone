@@ -14,7 +14,7 @@ const styles = {
   global: (props: Record<string, any>) => ({
     body: {
       color: mode("gray.800", "whiteAlpha.900")(props),
-      bg: mode("white", "rgb(38, 38, 38)")(props),
+      bg: mode("whiteAlpha.900", "rgb(38, 38, 38)")(props),
     },
   }),
 };
