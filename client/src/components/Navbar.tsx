@@ -59,8 +59,16 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       padding="15px 10px"
       justifyContent="flex-end"
       alignItems="center"
+      position="sticky"
+      top={0}
+      zIndex={100}
       style={{ boxShadow: "0px 0px 1px 1px rgba(0,0,0,0.5)" }}
     >
+      <NextLink href="/">
+        <Button mr="auto" colorScheme={colorScheme}>
+          Home
+        </Button>
+      </NextLink>
       {userLinks}
       <DarkModeSwitch />
     </Flex>

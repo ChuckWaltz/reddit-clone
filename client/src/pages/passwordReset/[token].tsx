@@ -6,11 +6,11 @@ import InputField from "../../components/InputField";
 import Wrapper from "../../components/Wrapper";
 import { toErrorMap } from "../../utils/toErrorMap";
 import { useResetPasswordMutation } from "../../generated/graphql";
-import { useRouter } from "next/dist/client/router";
 import { createUrqlClient } from "../../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
+import { useRouter } from "next/router";
 
-const PasswordReset: NextPage<{ token?: string }> = ({ token }) => {
+const PasswordReset: NextPage = () => {
   const router = useRouter();
   const [{}, resetPassword] = useResetPasswordMutation();
   const toast = useToast();
@@ -21,7 +21,7 @@ const PasswordReset: NextPage<{ token?: string }> = ({ token }) => {
         onSubmit={async (values, { setErrors }) => {
           try {
             const response = await resetPassword({
-              token: token as string,
+              token: router.query.token as string,
               newPassword: values.newPassword,
             });
             console.log(response);
@@ -68,12 +68,6 @@ const PasswordReset: NextPage<{ token?: string }> = ({ token }) => {
       </Formik>
     </Wrapper>
   );
-};
-
-PasswordReset.getInitialProps = ({ query }) => {
-  return {
-    token: query.token as string,
-  };
 };
 
 export default withUrqlClient(createUrqlClient)(PasswordReset);

@@ -18,6 +18,7 @@ import cors from "cors";
 
 import { __prod__, COOKIE_NAME } from "./constants";
 import { MyContext } from "./types";
+import { Vote } from "./entities/Vote";
 
 // Declaration merging for session data
 declare module "express-session" {
@@ -27,7 +28,7 @@ declare module "express-session" {
 }
 
 const main = async () => {
-  await createConnection({
+  /* const conn =  */ await createConnection({
     type: "postgres",
     host: "192.168.1.79",
     port: 5432,
@@ -37,7 +38,7 @@ const main = async () => {
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
-    entities: [User, Post],
+    entities: [User, Post, Vote],
   });
 
   //await conn.runMigrations();
@@ -84,7 +85,7 @@ const main = async () => {
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(4000, () => {
-    console.log("Server Started - Listening on Port: 4000");
+    console.log("Server Started --- Listening on Port: 4000");
   });
 };
 

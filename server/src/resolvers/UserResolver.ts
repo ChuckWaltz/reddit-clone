@@ -2,10 +2,12 @@ import {
   Arg,
   Ctx,
   Field,
+  FieldResolver,
   Mutation,
   ObjectType,
   Query,
   Resolver,
+  Root,
 } from "type-graphql";
 import argon2 from "argon2";
 import { MyContext } from "src/types";
@@ -28,6 +30,17 @@ class UserResponse {
 
 @Resolver(User)
 export class UserResolver {
+  @FieldResolver(() => String)
+  email(@Root() user: User, @Ctx() { req }: MyContext) {
+    if (req.session.userId === user.id) {
+      // Allow logged in user to see their email
+      return user.email;
+    } else {
+      // Don't allow other people to see email
+      return "";
+    }
+  }
+
   @Query(() => User, { nullable: true })
   me(@Ctx() { req }: MyContext) {
     //User not logged in
@@ -191,7 +204,7 @@ export class UserResolver {
         errors: [
           {
             field: "token",
-            message: "Token is expired",
+            message: "Token is expired or invalid",
           },
         ],
       };

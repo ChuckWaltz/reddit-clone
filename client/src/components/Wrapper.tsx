@@ -1,19 +1,22 @@
-import { Box } from "@chakra-ui/react";
+import { Flex } from "@chakra-ui/react";
 import React from "react";
 
+export type WrapperSize = "normal" | "small" | "large";
+
 interface WrapperProps {
-  size?: "normal" | "small" | "large";
+  size?: WrapperSize;
 }
 
 const Wrapper: React.FC<WrapperProps> = ({ children, size = "normal" }) => {
   return (
-    <Box
+    <Flex
       maxW={size === "small" ? "400px" : size === "large" ? "1200px" : "800px"}
       w="100%"
       mx="auto"
+      flexDir="column"
     >
       {children}
-    </Box>
+    </Flex>
   );
 };
 export default Wrapper;
