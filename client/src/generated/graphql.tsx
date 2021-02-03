@@ -47,11 +47,11 @@ export type Post = {
   text: Scalars['String'];
   points: Scalars['Float'];
   creatorId: Scalars['Float'];
+  creator: User;
   createdAt: Scalars['DateTime'];
   updatedAt: Scalars['DateTime'];
   textSnippet: Scalars['String'];
 };
-
 
 export type User = {
   __typename?: 'User';
@@ -62,11 +62,13 @@ export type User = {
   updatedAt: Scalars['DateTime'];
 };
 
+
 export type Mutation = {
   __typename?: 'Mutation';
   createPost: Post;
   updatePost?: Maybe<Post>;
   deletePost: Scalars['Boolean'];
+  vote: Scalars['Boolean'];
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
@@ -89,6 +91,12 @@ export type MutationUpdatePostArgs = {
 
 export type MutationDeletePostArgs = {
   id: Scalars['Float'];
+};
+
+
+export type MutationVoteArgs = {
+  value: Scalars['Int'];
+  postId: Scalars['Int'];
 };
 
 
@@ -166,7 +174,7 @@ export type CreatePostMutation = (
   { __typename?: 'Mutation' }
   & { createPost: (
     { __typename?: 'Post' }
-    & Pick<Post, 'id' | 'title' | 'text' | 'createdAt' | 'updatedAt'>
+    & Pick<Post, 'id' | 'title' | 'textSnippet' | 'points' | 'creatorId' | 'updatedAt' | 'createdAt'>
   ) }
 );
 
@@ -253,7 +261,11 @@ export type PostsQuery = (
     & Pick<PaginatedPosts, 'hasMore'>
     & { posts: Array<(
       { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'title' | 'textSnippet' | 'updatedAt' | 'createdAt' | 'creatorId'>
+      & Pick<Post, 'id' | 'title' | 'textSnippet' | 'points' | 'updatedAt' | 'createdAt'>
+      & { creator: (
+        { __typename?: 'User' }
+        & Pick<User, 'id' | 'username'>
+      ) }
     )> }
   ) }
 );
@@ -286,9 +298,11 @@ export const CreatePostDocument = gql`
   createPost(input: $input) {
     id
     title
-    text
-    createdAt
+    textSnippet
+    points
+    creatorId
     updatedAt
+    createdAt
   }
 }
     `;
@@ -366,9 +380,13 @@ export const PostsDocument = gql`
       id
       title
       textSnippet
+      points
       updatedAt
       createdAt
-      creatorId
+      creator {
+        id
+        username
+      }
     }
   }
 }

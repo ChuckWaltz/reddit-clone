@@ -10,7 +10,7 @@ interface WrapperProps {
 const Wrapper: React.FC<WrapperProps> = ({ children, size = "normal" }) => {
   return (
     <Flex
-      maxW={size === "small" ? "400px" : size === "large" ? "1200px" : "800px"}
+      maxW={size === "small" ? "400px" : size === "large" ? "1000px" : "700px"}
       w="100%"
       mx="auto"
       flexDir="column"

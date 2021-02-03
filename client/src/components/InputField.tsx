@@ -5,6 +5,7 @@ import {
   FormErrorMessage,
   Box,
   Textarea,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useField } from "formik";
 import React, { InputHTMLAttributes } from "react";
@@ -26,14 +27,26 @@ const InputField: React.FC<InputFieldProps> = ({
 }) => {
   const [field, { error }] = useField(props);
 
+  const bgColor = useColorModeValue("white", "rgb(25, 25, 25)");
+
   return (
     <Box mt={4}>
       <FormControl isInvalid={!!error}>
         <FormLabel htmlFor={field.name}>{props.label}</FormLabel>
         {textarea ? (
-          <Textarea {...field} {...props} id={field.name} />
+          <Textarea
+            {...field}
+            {...props}
+            id={field.name}
+            backgroundColor={bgColor}
+          />
         ) : (
-          <Input {...field} {...props} id={field.name} />
+          <Input
+            {...field}
+            {...props}
+            id={field.name}
+            backgroundColor={bgColor}
+          />
         )}
         {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
       </FormControl>

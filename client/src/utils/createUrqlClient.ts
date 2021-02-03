@@ -74,7 +74,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
     dedupExchange,
     cacheExchange({
       keys: {
-        PaginatedPosts: () => null,
+        PaginatedPosts: () => null, // Tells URQL that this type doesn't have an id/key. Could also tell it an actual id field if we had one
       },
       resolvers: {
         Query: {
@@ -115,6 +115,15 @@ export const createUrqlClient = (ssrExchange: any) => ({
 
               data.me = null;
               return data;
+            });
+          },
+          createPost: (_result, _args, cache, _info) => {
+            const allFields = cache.inspectFields("Query");
+            const fieldInfos = allFields.filter(
+              (info) => info.fieldName === "posts"
+            );
+            fieldInfos.forEach((fi) => {
+              cache.invalidate("Query", "posts", fi.arguments || undefined);
             });
           },
           /* register: (_result, _args, _cache, _info) => {

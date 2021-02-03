@@ -56,7 +56,8 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     <Flex
       bg={bg}
       color={color}
-      padding="15px 10px"
+      px={4}
+      py={2}
       justifyContent="flex-end"
       alignItems="center"
       position="sticky"
