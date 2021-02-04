@@ -144,24 +144,33 @@ export type UserInput = {
   password: Scalars['String'];
 };
 
-export type FieldErrorFragmentFragment = (
+export type PostSnippetFragment = (
+  { __typename?: 'Post' }
+  & Pick<Post, 'id' | 'title' | 'textSnippet' | 'points' | 'updatedAt' | 'createdAt'>
+  & { creator: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'username'>
+  ) }
+);
+
+export type RegularFieldErrorFragment = (
   { __typename?: 'FieldError' }
   & Pick<FieldError, 'field' | 'message'>
 );
 
-export type UserFragmentFragment = (
+export type RegularUserFragment = (
   { __typename?: 'User' }
   & Pick<User, 'id' | 'username'>
 );
 
-export type UserResponseFragmentFragment = (
+export type RegularUserResponseFragment = (
   { __typename?: 'UserResponse' }
   & { user?: Maybe<(
     { __typename?: 'User' }
-    & UserFragmentFragment
+    & RegularUserFragment
   )>, errors?: Maybe<Array<(
     { __typename?: 'FieldError' }
-    & FieldErrorFragmentFragment
+    & RegularFieldErrorFragment
   )>> }
 );
 
@@ -198,7 +207,7 @@ export type LoginMutation = (
   { __typename?: 'Mutation' }
   & { login: (
     { __typename?: 'UserResponse' }
-    & UserResponseFragmentFragment
+    & RegularUserResponseFragment
   ) }
 );
 
@@ -219,7 +228,7 @@ export type RegisterMutation = (
   { __typename?: 'Mutation' }
   & { register: (
     { __typename?: 'UserResponse' }
-    & UserResponseFragmentFragment
+    & RegularUserResponseFragment
   ) }
 );
 
@@ -233,7 +242,7 @@ export type ResetPasswordMutation = (
   { __typename?: 'Mutation' }
   & { resetPassword: (
     { __typename?: 'UserResponse' }
-    & UserResponseFragmentFragment
+    & RegularUserResponseFragment
   ) }
 );
 
@@ -244,7 +253,7 @@ export type MeQuery = (
   { __typename?: 'Query' }
   & { me?: Maybe<(
     { __typename?: 'User' }
-    & UserFragmentFragment
+    & RegularUserFragment
   )> }
 );
 
@@ -261,38 +270,48 @@ export type PostsQuery = (
     & Pick<PaginatedPosts, 'hasMore'>
     & { posts: Array<(
       { __typename?: 'Post' }
-      & Pick<Post, 'id' | 'title' | 'textSnippet' | 'points' | 'updatedAt' | 'createdAt'>
-      & { creator: (
-        { __typename?: 'User' }
-        & Pick<User, 'id' | 'username'>
-      ) }
+      & PostSnippetFragment
     )> }
   ) }
 );
 
-export const UserFragmentFragmentDoc = gql`
-    fragment UserFragment on User {
+export const PostSnippetFragmentDoc = gql`
+    fragment PostSnippet on Post {
+  id
+  title
+  textSnippet
+  points
+  updatedAt
+  createdAt
+  creator {
+    id
+    username
+  }
+}
+    `;
+export const RegularUserFragmentDoc = gql`
+    fragment RegularUser on User {
   id
   username
 }
     `;
-export const FieldErrorFragmentFragmentDoc = gql`
-    fragment FieldErrorFragment on FieldError {
+export const RegularFieldErrorFragmentDoc = gql`
+    fragment RegularFieldError on FieldError {
   field
   message
 }
     `;
-export const UserResponseFragmentFragmentDoc = gql`
-    fragment UserResponseFragment on UserResponse {
+export const RegularUserResponseFragmentDoc = gql`
+    fragment RegularUserResponse on UserResponse {
   user {
-    ...UserFragment
+    ...RegularUser
   }
   errors {
-    ...FieldErrorFragment
+    ...RegularFieldError
   }
 }
-    ${UserFragmentFragmentDoc}
-${FieldErrorFragmentFragmentDoc}`;
+    ${RegularUserFragmentDoc}
+${RegularFieldErrorFragmentDoc}`;
 export const CreatePostDocument = gql`
     mutation CreatePost($input: PostInput!) {
   createPost(input: $input) {
@@ -322,10 +341,10 @@ export function useForgotPasswordMutation() {
 export const LoginDocument = gql`
     mutation Login($usernameOrEmail: String!, $password: String!) {
   login(usernameOrEmail: $usernameOrEmail, password: $password) {
-    ...UserResponseFragment
+    ...RegularUserResponse
   }
 }
-    ${UserResponseFragmentFragmentDoc}`;
+    ${RegularUserResponseFragmentDoc}`;
 
 export function useLoginMutation() {
   return Urql.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument);
@@ -342,10 +361,10 @@ export function useLogoutMutation() {
 export const RegisterDocument = gql`
     mutation Register($options: UserInput!) {
   register(options: $options) {
-    ...UserResponseFragment
+    ...RegularUserResponse
   }
 }
-    ${UserResponseFragmentFragmentDoc}`;
+    ${RegularUserResponseFragmentDoc}`;
 
 export function useRegisterMutation() {
   return Urql.useMutation<RegisterMutation, RegisterMutationVariables>(RegisterDocument);
@@ -353,10 +372,10 @@ export function useRegisterMutation() {
 export const ResetPasswordDocument = gql`
     mutation ResetPassword($token: String!, $newPassword: String!) {
   resetPassword(token: $token, newPassword: $newPassword) {
-    ...UserResponseFragment
+    ...RegularUserResponse
   }
 }
-    ${UserResponseFragmentFragmentDoc}`;
+    ${RegularUserResponseFragmentDoc}`;
 
 export function useResetPasswordMutation() {
   return Urql.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument);
@@ -364,10 +383,10 @@ export function useResetPasswordMutation() {
 export const MeDocument = gql`
     query Me {
   me {
-    ...UserFragment
+    ...RegularUser
   }
 }
-    ${UserFragmentFragmentDoc}`;
+    ${RegularUserFragmentDoc}`;
 
 export function useMeQuery(options: Omit<Urql.UseQueryArgs<MeQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<MeQuery>({ query: MeDocument, ...options });
@@ -377,20 +396,11 @@ export const PostsDocument = gql`
   posts(limit: $limit, cursor: $cursor) {
     hasMore
     posts {
-      id
-      title
-      textSnippet
-      points
-      updatedAt
-      createdAt
-      creator {
-        id
-        username
-      }
+      ...PostSnippet
     }
   }
 }
-    `;
+    ${PostSnippetFragmentDoc}`;
 
 export function usePostsQuery(options: Omit<Urql.UseQueryArgs<PostsQueryVariables>, 'query'> = {}) {
   return Urql.useQuery<PostsQuery>({ query: PostsDocument, ...options });
