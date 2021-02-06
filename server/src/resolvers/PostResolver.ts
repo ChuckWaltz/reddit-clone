@@ -14,14 +14,7 @@ import {
   Root,
   UseMiddleware,
 } from "type-graphql";
-import {
-  createQueryBuilder,
-  getManager,
-  getRepository,
-  LessThan,
-  Equal,
-  getConnection,
-} from "typeorm";
+import { getManager, getConnection } from "typeorm";
 import { Post } from "../entities/Post";
 import { isAuth } from "../middleware/isAuth";
 
@@ -102,8 +95,6 @@ export class PostResolver {
       take: limitPlusOne,
       relations: ["creator"],
     }); */
-
-    console.log(posts);
 
     return {
       posts: posts.slice(0, limit),
