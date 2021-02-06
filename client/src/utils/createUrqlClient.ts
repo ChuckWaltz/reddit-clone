@@ -3,6 +3,7 @@ import {
   dedupExchange,
   errorExchange,
   fetchExchange,
+  gql,
   Operation,
   stringifyVariables,
 } from "urql";
@@ -12,6 +13,8 @@ import {
   MeDocument,
   MeQuery,
   LoginMutation,
+  VoteMutation,
+  VoteMutationVariables,
 } from "../generated/graphql";
 import Router from "next/router";
 
@@ -75,6 +78,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
     cacheExchange({
       keys: {
         PaginatedPosts: () => null, // Tells URQL that this type doesn't have an id/key. Could also tell it an actual id field if we had one
+        PostSnippet: () => null,
       },
       resolvers: {
         Query: {
@@ -125,6 +129,21 @@ export const createUrqlClient = (ssrExchange: any) => ({
             fieldInfos.forEach((fi) => {
               cache.invalidate("Query", "posts", fi.arguments || undefined);
             });
+          },
+          vote: (result, args, cache, _info) => {
+            const { postId, value } = args as VoteMutationVariables;
+            const voteMutation = result as VoteMutation;
+            if (!voteMutation.vote) return null;
+            cache.writeFragment(
+              gql`
+                fragment _ on Post {
+                  id
+                  points
+                  voted
+                }
+              `,
+              { id: postId, points: voteMutation.vote.points, voted: value }
+            );
           },
           /* register: (_result, _args, _cache, _info) => {
             customUpdateQuery<RegisterMutation, MeQuery>(

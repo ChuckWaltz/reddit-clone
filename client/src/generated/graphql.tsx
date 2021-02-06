@@ -46,6 +46,7 @@ export type Post = {
   title: Scalars['String'];
   text: Scalars['String'];
   points: Scalars['Float'];
+  voted?: Maybe<Scalars['Int']>;
   creatorId: Scalars['Float'];
   creator: User;
   createdAt: Scalars['DateTime'];
@@ -68,7 +69,7 @@ export type Mutation = {
   createPost: Post;
   updatePost?: Maybe<Post>;
   deletePost: Scalars['Boolean'];
-  vote: Scalars['Boolean'];
+  vote?: Maybe<Post>;
   register: UserResponse;
   login: UserResponse;
   logout: Scalars['Boolean'];
@@ -146,7 +147,7 @@ export type UserInput = {
 
 export type PostSnippetFragment = (
   { __typename?: 'Post' }
-  & Pick<Post, 'id' | 'title' | 'textSnippet' | 'points' | 'updatedAt' | 'createdAt'>
+  & Pick<Post, 'id' | 'title' | 'textSnippet' | 'points' | 'voted' | 'updatedAt' | 'createdAt'>
   & { creator: (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'username'>
@@ -246,6 +247,20 @@ export type ResetPasswordMutation = (
   ) }
 );
 
+export type VoteMutationVariables = Exact<{
+  value: Scalars['Int'];
+  postId: Scalars['Int'];
+}>;
+
+
+export type VoteMutation = (
+  { __typename?: 'Mutation' }
+  & { vote?: Maybe<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'points'>
+  )> }
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -281,6 +296,7 @@ export const PostSnippetFragmentDoc = gql`
   title
   textSnippet
   points
+  voted
   updatedAt
   createdAt
   creator {
@@ -379,6 +395,18 @@ export const ResetPasswordDocument = gql`
 
 export function useResetPasswordMutation() {
   return Urql.useMutation<ResetPasswordMutation, ResetPasswordMutationVariables>(ResetPasswordDocument);
+};
+export const VoteDocument = gql`
+    mutation Vote($value: Int!, $postId: Int!) {
+  vote(value: $value, postId: $postId) {
+    id
+    points
+  }
+}
+    `;
+
+export function useVoteMutation() {
+  return Urql.useMutation<VoteMutation, VoteMutationVariables>(VoteDocument);
 };
 export const MeDocument = gql`
     query Me {

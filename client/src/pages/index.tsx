@@ -1,15 +1,7 @@
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { usePostsQuery } from "../generated/graphql";
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Stack,
-  Text,
-  useColorModeValue,
-} from "@chakra-ui/react";
+import { Button, Flex, Stack } from "@chakra-ui/react";
 import Layout from "../components/Layout";
 import React, { useState } from "react";
 import { colorScheme } from "../utils/constants";
@@ -39,7 +31,7 @@ const Index = () => {
         </NextLink>
         <Stack spacing={4}>
           {data?.posts.posts.map((p) => (
-            <PostCard post={p} />
+            <PostCard key={p.id} post={p} />
           ))}
         </Stack>
         <Button

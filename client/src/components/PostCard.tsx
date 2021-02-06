@@ -1,6 +1,8 @@
-import { Box, Heading, Text, useColorModeValue } from "@chakra-ui/react";
 import React from "react";
-import { PostSnippetFragment } from "../generated/graphql";
+import { Box, Flex, Heading, Text, useColorModeValue } from "@chakra-ui/react";
+import { PostSnippetFragment, useVoteMutation } from "../generated/graphql";
+import { colorScheme } from "../utils/constants";
+import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
 
 interface PostCardProps {
   post: PostSnippetFragment;
@@ -9,6 +11,12 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ post }) => {
   const postCardBGColor = useColorModeValue("white", "rgb(25, 25, 25)");
   const postCardTextColor = useColorModeValue("gray.800", "white");
+  const votePanelBGColor = useColorModeValue("gray.100", "rgb(35, 35, 35)");
+  const voteButtonColor = useColorModeValue(
+    `${colorScheme}.600`,
+    `${colorScheme}.300`
+  );
+  const voteButtonDisabled = useColorModeValue("gray.400", "gray.600");
 
   const formatPostedDate = (dateString: string) => {
     const now = new Date().getTime() / 1000; //seconds since epoch
@@ -41,23 +49,52 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     return val;
   };
 
+  const [{}, vote] = useVoteMutation();
+
   return (
-    <Box
-      key={post.id}
-      p={5}
+    <Flex
       shadow="md"
       borderWidth="1px"
       borderRadius={5}
       backgroundColor={postCardBGColor}
       color={postCardTextColor}
+      flexGrow={1}
     >
-      <Heading fontSize="xl">{post.title}</Heading>
-      <Text fontSize="xs" mt={1}>
-        Posted By: {post.creator.username} {formatPostedDate(post.createdAt)}{" "}
-        ago
-      </Text>
-      <Text fontSize="md" mt={4}></Text>
-    </Box>
+      <Flex
+        flexDir="column"
+        alignItems="center"
+        p={1}
+        bgColor={votePanelBGColor}
+      >
+        <ChevronUpIcon
+          cursor="pointer"
+          fontSize="2em"
+          color={post.voted === 1 ? voteButtonColor : voteButtonDisabled}
+          onClick={() => {
+            vote({ postId: parseInt(post.id), value: 1 });
+          }}
+        />
+        <Box p={1}>{post.points}</Box>
+        <ChevronDownIcon
+          cursor="pointer"
+          fontSize="2em"
+          color={post.voted === -1 ? voteButtonColor : voteButtonDisabled}
+          onClick={() => {
+            vote({ postId: parseInt(post.id), value: -1 });
+          }}
+        />
+      </Flex>
+      <Flex flexDirection="column" py={2} px={4}>
+        <Heading fontSize="xl">{post.title}</Heading>
+        <Text fontSize="xs" mt={1}>
+          Posted By: {post.creator.username} {formatPostedDate(post.createdAt)}{" "}
+          ago
+        </Text>
+        <Text fontSize="md" mt={4}>
+          {post.textSnippet}
+        </Text>
+      </Flex>
+    </Flex>
   );
 };
 

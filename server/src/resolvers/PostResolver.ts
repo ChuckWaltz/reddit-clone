@@ -14,7 +14,14 @@ import {
   Root,
   UseMiddleware,
 } from "type-graphql";
-import { LessThan } from "typeorm";
+import {
+  createQueryBuilder,
+  getManager,
+  getRepository,
+  LessThan,
+  Equal,
+  getConnection,
+} from "typeorm";
 import { Post } from "../entities/Post";
 import { isAuth } from "../middleware/isAuth";
 
@@ -44,12 +51,13 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
+    @Ctx() { req }: MyContext
   ): Promise<PaginatedPosts> {
     limit = Math.min(50, limit); // Make sure limit doesn't exceed this cap
     const limitPlusOne = limit + 1;
 
-    /* const replacements: any[] = [limitPlusOne];
+    const replacements: any[] = [limitPlusOne, req.session.userId];
     if (cursor) replacements.push(new Date(cursor));
 
     const posts = await getConnection().query(
@@ -58,16 +66,23 @@ export class PostResolver {
       json_build_object(
         'id', u.id,
         'username', u.username,
-        'email', u.email
-        ) creator
+        'email', u.email,
+        'createdAt', u."createdAt",
+        'updatedAt', u."updatedAt"
+        ) creator,
+      ${
+        req.session.userId
+          ? '(select value from vote where "userId" = $2 and "postId" = p.id) voted'
+          : 'null as "voted"'
+      }
       from post p
       inner join public.user u on u.id = p."creatorId"
-      ${cursor ? `where p."createdAt" < $2` : ""}
+      ${cursor ? `where p."createdAt" < $3` : ""}
       order by p."createdAt" DESC
       limit $1
       `,
       replacements
-    ); */
+    );
 
     /* const qb = getConnection()
       .getRepository(Post)
@@ -81,12 +96,14 @@ export class PostResolver {
 
     const posts = await qb.getMany(); */
 
-    const posts = await Post.find({
+    /* const posts = await Post.find({
       where: !cursor ? [] : [{ createdAt: LessThan(new Date(cursor)) }],
       order: { createdAt: "DESC" },
       take: limitPlusOne,
       relations: ["creator"],
-    });
+    }); */
+
+    console.log(posts);
 
     return {
       posts: posts.slice(0, limit),
@@ -133,27 +150,49 @@ export class PostResolver {
     return true;
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => Post, { nullable: true })
   @UseMiddleware(isAuth)
   async vote(
     @Arg("postId", () => Int) postId: number,
     @Arg("value", () => Int) value: number,
     @Ctx() { req }: MyContext
-  ) {
+  ): Promise<Post | null> {
     const userId = req.session.userId;
-    if (value === 0) return false;
+
+    if (value === 0) return null;
     value = value > 0 ? 1 : -1;
-    const vote = await Vote.insert({
-      userId,
-      postId,
-      value,
-    });
-    if (!vote.generatedMaps) return false;
 
     const post = await Post.findOne(postId);
-    if (!post) return false;
+    if (!post) return null;
 
-    await Post.update(post.id, { points: post.points + value });
-    return true;
+    let vote = await Vote.findOne({
+      where: { postId: postId, userId: userId },
+    });
+
+    let updatedPost = null;
+
+    if (vote) {
+      if (value == vote.value) return null;
+
+      vote.value = value;
+
+      post.points += vote.value * 2;
+
+      await getManager().transaction(async (transactionalEntityManager) => {
+        await transactionalEntityManager.save(vote);
+        updatedPost = await transactionalEntityManager.save(post);
+      });
+    } else {
+      vote = Vote.create({ userId, postId, value });
+
+      post.points += vote.value;
+
+      await getManager().transaction(async (transactionalEntityManager) => {
+        await transactionalEntityManager.save(vote);
+        updatedPost = await transactionalEntityManager.save(post);
+      });
+    }
+
+    return updatedPost;
   }
 }
