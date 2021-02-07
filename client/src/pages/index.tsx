@@ -30,9 +30,9 @@ const Index = () => {
           </Button>
         </NextLink>
         <Stack spacing={4}>
-          {data?.posts.posts.map((p) => (
-            <PostCard key={p.id} post={p} />
-          ))}
+          {data?.posts.posts.map((p) =>
+            !p ? null : <PostCard key={p.id} post={p} />
+          )}
         </Stack>
         <Button
           disabled={fetching || !data || !data.posts.hasMore}

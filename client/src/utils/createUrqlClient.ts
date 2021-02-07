@@ -15,8 +15,10 @@ import {
   LoginMutation,
   VoteMutation,
   VoteMutationVariables,
+  DeletePostMutationVariables,
 } from "../generated/graphql";
 import Router from "next/router";
+import { isServer } from "./isServer";
 
 // Allows to properly cast the types for URQL when updating cache
 /* function customUpdateQuery<Result, Query>(
@@ -68,84 +70,104 @@ const cursorPagination = (): Resolver => {
   };
 };
 
-export const createUrqlClient = (ssrExchange: any) => ({
-  url: "http://localhost:4000/graphql",
-  fetchOptions: {
-    credentials: "include" as const,
-  },
-  exchanges: [
-    dedupExchange,
-    cacheExchange({
-      keys: {
-        PaginatedPosts: () => null, // Tells URQL that this type doesn't have an id/key. Could also tell it an actual id field if we had one
-        PostSnippet: () => null,
-      },
-      resolvers: {
-        Query: {
-          posts: cursorPagination(),
+export const createUrqlClient = (ssrExchange: any, ctx: any) => {
+  let cookie = "";
+  if (isServer()) {
+    cookie = ctx?.req?.headers?.cookie; // Need to tell Next.js to send cookie to GraphQL if requests are made via SSR
+  }
+
+  return {
+    url: "http://localhost:4000/graphql",
+    fetchOptions: {
+      credentials: "include" as const,
+      headers: cookie ? { cookie } : undefined,
+    },
+    exchanges: [
+      dedupExchange,
+      cacheExchange({
+        keys: {
+          PaginatedPosts: () => null, // Tells URQL that this type doesn't have an id/key. Could also tell it an actual id field if we had one
+          PostSnippet: () => null,
         },
-      },
-      updates: {
-        Mutation: {
-          register: (result, _args, cache, _info) => {
-            const registerMutation = result as RegisterMutation;
-            cache.updateQuery({ query: MeDocument }, (data: MeQuery | null) => {
-              if (!data) return null;
-
-              if (registerMutation.register.errors) {
-                return data;
-              }
-
-              data.me = registerMutation.register.user;
-              return data;
-            });
+        resolvers: {
+          Query: {
+            posts: cursorPagination(),
           },
-          login: (result, _args, cache, _info) => {
-            const loginMutation = result as LoginMutation;
-            cache.updateQuery({ query: MeDocument }, (data: MeQuery | null) => {
-              if (!data) return null;
+        },
+        updates: {
+          Mutation: {
+            register: (result, _args, cache, _info) => {
+              const registerMutation = result as RegisterMutation;
+              cache.updateQuery(
+                { query: MeDocument },
+                (data: MeQuery | null) => {
+                  if (!data) return null;
 
-              if (loginMutation.login.errors) {
-                return data;
-              }
+                  if (registerMutation.register.errors) {
+                    return data;
+                  }
 
-              data.me = loginMutation.login.user;
-              return data;
-            });
-          },
-          logout: (_result, _args, cache, _info) => {
-            cache.updateQuery({ query: MeDocument }, (data: MeQuery | null) => {
-              if (!data) return null;
-
-              data.me = null;
-              return data;
-            });
-          },
-          createPost: (_result, _args, cache, _info) => {
-            const allFields = cache.inspectFields("Query");
-            const fieldInfos = allFields.filter(
-              (info) => info.fieldName === "posts"
-            );
-            fieldInfos.forEach((fi) => {
-              cache.invalidate("Query", "posts", fi.arguments || undefined);
-            });
-          },
-          vote: (result, args, cache, _info) => {
-            const { postId, value } = args as VoteMutationVariables;
-            const voteMutation = result as VoteMutation;
-            if (!voteMutation.vote) return null;
-            cache.writeFragment(
-              gql`
-                fragment _ on Post {
-                  id
-                  points
-                  voted
+                  data.me = registerMutation.register.user;
+                  return data;
                 }
-              `,
-              { id: postId, points: voteMutation.vote.points, voted: value }
-            );
-          },
-          /* register: (_result, _args, _cache, _info) => {
+              );
+            },
+            login: (result, _args, cache, _info) => {
+              const loginMutation = result as LoginMutation;
+              cache.updateQuery(
+                { query: MeDocument },
+                (data: MeQuery | null) => {
+                  if (!data) return null;
+
+                  if (loginMutation.login.errors) {
+                    return data;
+                  }
+
+                  data.me = loginMutation.login.user;
+                  return data;
+                }
+              );
+            },
+            logout: (_result, _args, cache, _info) => {
+              cache.updateQuery(
+                { query: MeDocument },
+                (data: MeQuery | null) => {
+                  if (!data) return null;
+
+                  data.me = null;
+                  return data;
+                }
+              );
+            },
+            createPost: (_result, _args, cache, _info) => {
+              const allFields = cache.inspectFields("Query");
+              const fieldInfos = allFields.filter(
+                (info) => info.fieldName === "posts"
+              );
+              fieldInfos.forEach((fi) => {
+                cache.invalidate("Query", "posts", fi.arguments || undefined);
+              });
+            },
+            deletePost: (_result, args, cache, _info) => {
+              const { id: postId } = args as DeletePostMutationVariables;
+              cache.invalidate({ __typename: "Post", id: postId });
+            },
+            vote: (result, args, cache, _info) => {
+              const { postId, value } = args as VoteMutationVariables;
+              const voteMutation = result as VoteMutation;
+              if (!voteMutation.vote) return null;
+              cache.writeFragment(
+                gql`
+                  fragment _ on Post {
+                    id
+                    points
+                    voted
+                  }
+                `,
+                { id: postId, points: voteMutation.vote.points, voted: value }
+              );
+            },
+            /* register: (_result, _args, _cache, _info) => {
             customUpdateQuery<RegisterMutation, MeQuery>(
               _cache,
               { query: MeDocument },
@@ -161,7 +183,7 @@ export const createUrqlClient = (ssrExchange: any) => ({
               }
             );
           }, */
-          /* login: (_result, _args, _cache, _info) => {
+            /* login: (_result, _args, _cache, _info) => {
             customUpdateQuery<LoginMutation, MeQuery>(
               _cache,
               { query: MeDocument },
@@ -177,17 +199,18 @@ export const createUrqlClient = (ssrExchange: any) => ({
               }
             );
           }, */
+          },
         },
-      },
-    }),
-    errorExchange({
-      onError: (error: CombinedError, _operation: Operation) => {
-        if (error.message.toLowerCase().includes("not authenticated")) {
-          Router.replace("/login");
-        }
-      },
-    }),
-    ssrExchange,
-    fetchExchange,
-  ],
-});
+      }),
+      errorExchange({
+        onError: (error: CombinedError, _operation: Operation) => {
+          if (error.message.toLowerCase().includes("not authenticated")) {
+            Router.replace("/login");
+          }
+        },
+      }),
+      ssrExchange,
+      fetchExchange,
+    ],
+  };
+};

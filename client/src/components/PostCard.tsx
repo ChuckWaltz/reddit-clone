@@ -1,8 +1,27 @@
 import React from "react";
-import { Box, Flex, Heading, Text, useColorModeValue } from "@chakra-ui/react";
-import { PostSnippetFragment, useVoteMutation } from "../generated/graphql";
+import {
+  Box,
+  Flex,
+  Heading,
+  IconButton,
+  Link,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
+import {
+  PostSnippetFragment,
+  useDeletePostMutation,
+  useMeQuery,
+  useVoteMutation,
+} from "../generated/graphql";
 import { colorScheme } from "../utils/constants";
-import { ChevronDownIcon, ChevronUpIcon } from "@chakra-ui/icons";
+import {
+  ChevronDownIcon,
+  ChevronUpIcon,
+  DeleteIcon,
+  EditIcon,
+} from "@chakra-ui/icons";
+import NextLink from "next/link";
 
 interface PostCardProps {
   post: PostSnippetFragment;
@@ -49,7 +68,9 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     return val;
   };
 
+  const [{ data }] = useMeQuery();
   const [{}, vote] = useVoteMutation();
+  const [{}, deletePost] = useDeletePostMutation();
 
   return (
     <Flex
@@ -84,15 +105,70 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
           }}
         />
       </Flex>
-      <Flex flexDirection="column" py={2} px={4}>
-        <Heading fontSize="xl">{post.title}</Heading>
-        <Text fontSize="xs" mt={1}>
-          Posted By: {post.creator.username} {formatPostedDate(post.createdAt)}{" "}
-          ago
-        </Text>
-        <Text fontSize="md" mt={4}>
-          {post.textSnippet}
-        </Text>
+      <NextLink href="/post/[id]" as={`/post/${post.id}`}>
+        <Flex
+          flexDirection="column"
+          py={2}
+          px={4}
+          flexGrow={1}
+          cursor="pointer"
+          role="group"
+        >
+          <Heading
+            fontSize="xl"
+            _groupHover={{
+              textDecoration: "underline",
+              color: voteButtonColor,
+            }}
+          >
+            {post.title}
+          </Heading>
+          <Text fontSize="xs" mt={1}>
+            Posted By: {post.creator.username}{" "}
+            {formatPostedDate(post.createdAt)} ago
+          </Text>
+          <Text fontSize="md" mt={4}>
+            {post.textSnippet}
+          </Text>
+        </Flex>
+      </NextLink>
+      <Flex bgColor={votePanelBGColor} p={3} flexDir="column">
+        <IconButton
+          size="sm"
+          as={Link}
+          icon={<DeleteIcon />}
+          aria-label="Delete Post"
+          opacity={data?.me?.id === post.creator.id ? 1 : 0}
+          pointerEvents={data?.me?.id === post.creator.id ? "initial" : "none"}
+          variant="outline"
+          colorScheme="red"
+          onClick={() => {
+            deletePost({ id: parseInt(post.id) });
+          }}
+        />
+        {/* <DeleteIcon
+          cursor="pointer"
+          _hover={{ color: "red.500" }}
+          onClick={() => {
+            deletePost({ id: parseInt(post.id) });
+          }}
+          opacity={data?.me?.id === post.creator.id ? 1 : 0}
+          pointerEvents={data?.me?.id === post.creator.id ? "initial" : "none"}
+        /> */}
+        <NextLink href="/post/edit/[id]" as={`/post/edit/${post.id}`}>
+          <IconButton
+            size="sm"
+            as={Link}
+            icon={<EditIcon />}
+            aria-label="Edit Post"
+            opacity={data?.me?.id === post.creator.id ? 1 : 0}
+            pointerEvents={
+              data?.me?.id === post.creator.id ? "initial" : "none"
+            }
+            colorScheme={colorScheme}
+            mt="auto"
+          />
+        </NextLink>
       </Flex>
     </Flex>
   );

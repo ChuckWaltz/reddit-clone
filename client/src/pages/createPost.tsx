@@ -26,20 +26,14 @@ const CreatePost = () => {
           <Formik
             initialValues={{ title: "", text: "" }}
             onSubmit={async (values) => {
-              console.log(values);
-              try {
-                const response = await createPost({
-                  input: {
-                    title: values.title,
-                    text: values.text,
-                  },
-                });
-                console.log(response);
-                if (!response.error) {
-                  router.push("/");
-                }
-              } catch (error) {
-                console.log(error);
+              const response = await createPost({
+                input: {
+                  title: values.title,
+                  text: values.text,
+                },
+              });
+              if (!response.error) {
+                router.back();
               }
             }}
           >

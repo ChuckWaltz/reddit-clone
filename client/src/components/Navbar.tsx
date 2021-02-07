@@ -3,7 +3,6 @@ import React from "react";
 import { DarkModeSwitch } from "./DarkModeSwitch";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
-import { isServer } from "../utils/isServer";
 import { colorScheme } from "../utils/constants";
 
 interface NavbarProps {}
@@ -12,7 +11,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   const bg = useColorModeValue("white", "rgb(25, 25, 25)");
   const color = useColorModeValue("gray.800", "white");
 
-  const [{ data, fetching }] = useMeQuery({ pause: isServer() }); // Pause options tells this to not run if on server (ssr) -- is causing console warning..??
+  const [{ data, fetching }] = useMeQuery();
   const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
 
   let userLinks = null;
