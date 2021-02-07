@@ -7,7 +7,7 @@ import {
   Operation,
   stringifyVariables,
 } from "urql";
-import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import { cacheExchange, Resolver, Cache } from "@urql/exchange-graphcache";
 import {
   RegisterMutation,
   MeDocument,
@@ -29,6 +29,14 @@ import { isServer } from "./isServer";
 ) {
   return cache.updateQuery(qi, (data) => fn(result, data as any) as any);
 } */
+
+const invalidateAllPosts = (cache: Cache) => {
+  const allFields = cache.inspectFields("Query");
+  const fieldInfos = allFields.filter((info) => info.fieldName === "posts");
+  fieldInfos.forEach((fi) => {
+    cache.invalidate("Query", "posts", fi.arguments || undefined);
+  });
+};
 
 const cursorPagination = (): Resolver => {
   return (_parent, fieldArgs, cache, info) => {
@@ -111,6 +119,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   return data;
                 }
               );
+              invalidateAllPosts(cache);
             },
             login: (result, _args, cache, _info) => {
               const loginMutation = result as LoginMutation;
@@ -127,6 +136,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   return data;
                 }
               );
+              invalidateAllPosts(cache);
             },
             logout: (_result, _args, cache, _info) => {
               cache.updateQuery(
@@ -138,15 +148,10 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                   return data;
                 }
               );
+              invalidateAllPosts(cache);
             },
             createPost: (_result, _args, cache, _info) => {
-              const allFields = cache.inspectFields("Query");
-              const fieldInfos = allFields.filter(
-                (info) => info.fieldName === "posts"
-              );
-              fieldInfos.forEach((fi) => {
-                cache.invalidate("Query", "posts", fi.arguments || undefined);
-              });
+              invalidateAllPosts(cache);
             },
             deletePost: (_result, args, cache, _info) => {
               const { id: postId } = args as DeletePostMutationVariables;

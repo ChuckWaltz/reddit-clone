@@ -19,6 +19,8 @@ import cors from "cors";
 import { __prod__, COOKIE_NAME } from "./constants";
 import { MyContext } from "./types";
 import { Vote } from "./entities/Vote";
+import { createUserLoader } from "./utils/createUserLoader";
+import { createVoteLoader } from "./utils/createVoteLoader";
 
 // Declaration merging for session data
 declare module "express-session" {
@@ -79,7 +81,13 @@ const main = async () => {
       resolvers: [PostResolver, UserResolver],
       validate: false,
     }),
-    context: ({ req, res }): MyContext => ({ req, res, redis }),
+    context: ({ req, res }): MyContext => ({
+      req,
+      res,
+      redis,
+      userLoader: createUserLoader(),
+      voteLoader: createVoteLoader(),
+    }),
   });
 
   apolloServer.applyMiddleware({ app, cors: false });

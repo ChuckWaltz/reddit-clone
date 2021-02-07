@@ -17,6 +17,7 @@ import {
 import { getManager, getConnection } from "typeorm";
 import { Post } from "../entities/Post";
 import { isAuth } from "../middleware/isAuth";
+import { User } from "../entities/User";
 
 @InputType()
 class PostInput {
@@ -41,25 +42,53 @@ export class PostResolver {
     return root.text.slice(0, 50);
   }
 
+  // Custom field resolver to always get creator when we get a post
+  // Uses dataloader package to optimize sql queries
+  @FieldResolver(() => User)
+  creator(@Root() post: Post, @Ctx() { userLoader }: MyContext) {
+    return userLoader.load(post.creatorId);
+  }
+
+  // Custom field resolver to always get voted when we get a post
+  // Uses dataloader package to optimize sql queries
+  @FieldResolver(() => Int, { nullable: true })
+  async voted(@Root() post: Post, @Ctx() { voteLoader, req }: MyContext) {
+    if (!req.session.userId) return null;
+
+    const vote = await voteLoader.load({
+      postId: post.id,
+      userId: req.session.userId,
+    });
+
+    return vote ? vote.value : null;
+  }
+
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null,
-    @Ctx() { req }: MyContext
+    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
   ): Promise<PaginatedPosts> {
     limit = Math.min(50, limit); // Make sure limit doesn't exceed this cap
     const limitPlusOne = limit + 1;
 
     const replacements: any[] = [limitPlusOne];
-    if (req.session.userId) replacements.push(req.session.userId);
 
-    let cursorIdx = 3;
     if (cursor) {
       replacements.push(new Date(cursor));
-      cursorIdx = replacements.length;
     }
 
     const posts = await getConnection().query(
+      `
+      select p.*
+      from post p
+      ${cursor ? `where p."createdAt" < $2` : ""}
+      order by p."createdAt" DESC
+      limit $1
+      `,
+      replacements
+    );
+
+    /* const posts = await getConnection().query(
       `
       select p.*,
       json_build_object(
@@ -81,7 +110,7 @@ export class PostResolver {
       limit $1
       `,
       replacements
-    );
+    ); */
 
     /* const qb = getConnection()
       .getRepository(Post)
@@ -110,7 +139,8 @@ export class PostResolver {
 
   @Query(() => Post, { nullable: true })
   post(@Arg("id", () => Int) id: number): Promise<Post | undefined> {
-    return Post.findOne(id, { relations: ["creator"] });
+    /* return Post.findOne(id, { relations: ["creator"] }); */
+    return Post.findOne(id);
   }
 
   @Mutation(() => Post)
