@@ -1,6 +1,8 @@
 import path from "path";
 import express from "express";
 import "reflect-metadata";
+import "dotenv-safe/config";
+
 import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
 import { ApolloServer } from "apollo-server-express";
@@ -32,11 +34,7 @@ declare module "express-session" {
 const main = async () => {
   /* const conn =  */ await createConnection({
     type: "postgres",
-    host: "192.168.1.79",
-    port: 5432,
-    username: "postgres",
-    password: "postgres",
-    database: "redditclone",
+    url: process.env.DATABASE_URL,
     logging: true,
     synchronize: true,
     migrations: [path.join(__dirname, "./migrations/*")],
@@ -48,11 +46,13 @@ const main = async () => {
   const app = express();
 
   const RedisStore = connectRedis(session);
-  const redis = new ioredis();
+  const redis = new ioredis(process.env.REDIS_URL);
+
+  app.set("proxy", 1); // Tells express we have a proxy sitting in front (nginx) so cookies/sessions etc. work
 
   app.use(
     cors({
-      origin: "http://localhost:3000",
+      origin: process.env.CORS_ORIGIN,
       credentials: true,
     })
   );
@@ -69,9 +69,10 @@ const main = async () => {
         httpOnly: true,
         sameSite: "lax", // protects against csrf (google for info)
         secure: __prod__, // cookie only works over https
+        domain: __prod__ ? ".chuckwaltzapps.com" : undefined,
       },
       saveUninitialized: false,
-      secret: "dhjaklsjdklasjdlkasjdajsld",
+      secret: process.env.SESSION_SECRET,
       resave: false,
     })
   );
@@ -92,7 +93,7 @@ const main = async () => {
 
   apolloServer.applyMiddleware({ app, cors: false });
 
-  app.listen(4000, () => {
+  app.listen(parseInt(process.env.PORT), () => {
     console.log("Server Started --- Listening on Port: 4000");
   });
 };
