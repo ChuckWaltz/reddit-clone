@@ -32,23 +32,23 @@ declare module "express-session" {
 }
 
 const main = async () => {
-  /* const conn =  */ await createConnection({
+  const _conn = await createConnection({
     type: "postgres",
     url: process.env.DATABASE_URL,
     logging: true,
-    synchronize: true,
+    synchronize: !__prod__,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [User, Post, Vote],
   });
 
-  //await conn.runMigrations();
+  if (__prod__) await _conn.runMigrations();
 
   const app = express();
 
   const RedisStore = connectRedis(session);
   const redis = new ioredis(process.env.REDIS_URL);
 
-  app.set("proxy", 1); // Tells express we have a proxy sitting in front (nginx) so cookies/sessions etc. work
+  app.set("trust proxy", 1); // Tells express we have a proxy sitting in front (nginx) so cookies/sessions etc. work
 
   app.use(
     cors({
