@@ -26,9 +26,9 @@ const ForgotPassword: React.FC<ForgotPasswordProps> = ({}) => {
                 email: values.email,
               });
               toast({
-                title: "Email Sent",
+                title: "Pretend Email Sent!",
                 description:
-                  "Please check your e-mail for a link to reset your password",
+                  "This is just a project made for fun, so no real emails are being sent. Sorry!",
                 status: "success",
                 duration: 5000,
                 isClosable: true,
