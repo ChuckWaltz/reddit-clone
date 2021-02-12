@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@chakra-ui/react";
+import { Button, Divider, Heading } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
@@ -18,7 +18,11 @@ const Register: React.FC<RegisterProps> = ({}) => {
   const [{}, register] = useRegisterMutation();
   return (
     <Layout>
-      <Wrapper size="small">
+      <Wrapper size="small" formWrapper={true}>
+        <Heading size="md" mb={4}>
+          User Registration
+        </Heading>
+        <Divider />
         <Formik
           initialValues={{ email: "", username: "", password: "" }}
           onSubmit={async (values, { setErrors }) => {
@@ -65,7 +69,9 @@ const Register: React.FC<RegisterProps> = ({}) => {
                 type="submit"
                 isLoading={isSubmitting}
                 colorScheme={colorScheme}
-                mt={4}
+                mt={6}
+                px={6}
+                float="right"
               >
                 Register
               </Button>

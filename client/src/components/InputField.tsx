@@ -27,26 +27,14 @@ const InputField: React.FC<InputFieldProps> = ({
 }) => {
   const [field, { error }] = useField(props);
 
-  const bgColor = useColorModeValue("white", "rgb(25, 25, 25)");
-
   return (
     <Box mt={4}>
       <FormControl isInvalid={!!error}>
         <FormLabel htmlFor={field.name}>{props.label}</FormLabel>
         {textarea ? (
-          <Textarea
-            {...field}
-            {...props}
-            id={field.name}
-            backgroundColor={bgColor}
-          />
+          <Textarea {...field} {...props} id={field.name} />
         ) : (
-          <Input
-            {...field}
-            {...props}
-            id={field.name}
-            backgroundColor={bgColor}
-          />
+          <Input {...field} {...props} id={field.name} />
         )}
         {error ? <FormErrorMessage>{error}</FormErrorMessage> : null}
       </FormControl>

@@ -8,7 +8,6 @@ import {
   MenuList,
   Icon,
   Link,
-  Box,
 } from "@chakra-ui/react";
 import React from "react";
 import { DarkModeSwitch } from "./DarkModeSwitch";
@@ -28,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
   );
 
   const [{ data, fetching }] = useMeQuery();
-  const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
+  const [{}, logout] = useLogoutMutation();
 
   let userSection = null;
   if (fetching) {
@@ -67,7 +66,6 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
             onClick={async () => {
               logout();
             }}
-            isLoading={logoutFetching}
             mr={5}
           >
             Logout

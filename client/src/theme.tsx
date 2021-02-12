@@ -27,6 +27,13 @@ const theme = extendTheme({
   fonts,
   breakpoints,
   styles,
+  components: {
+    Button: {
+      baseStyle: {
+        borderRadius: 100,
+      },
+    },
+  },
 });
 
 export default theme;

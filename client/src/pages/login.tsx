@@ -1,5 +1,5 @@
 import React from "react";
-import { Button, Flex, Link } from "@chakra-ui/react";
+import { Button, Divider, Flex, Heading, Link } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import InputField from "../components/InputField";
 import Wrapper from "../components/Wrapper";
@@ -19,7 +19,11 @@ const Login: React.FC<LoginProps> = ({}) => {
   const [{}, login] = useLoginMutation();
   return (
     <Layout>
-      <Wrapper size="small">
+      <Wrapper size="small" formWrapper={true}>
+        <Heading size="md" mb={4}>
+          Login
+        </Heading>
+        <Divider />
         <Formik
           initialValues={{ usernameOrEmail: "", password: "" }}
           onSubmit={async (values, { setErrors }) => {
@@ -59,20 +63,22 @@ const Login: React.FC<LoginProps> = ({}) => {
                 placeholder="Enter a password"
                 type="password"
               />
-              <Flex>
+              <Flex flexDir="column">
+                <NextLink href="/forgotPassword">
+                  <Link ml="auto" mt={2} fontSize="sm">
+                    Forgot Password?
+                  </Link>
+                </NextLink>
                 <Button
                   type="submit"
                   isLoading={isSubmitting}
                   colorScheme={colorScheme}
-                  mt={4}
+                  mt={6}
+                  ml="auto"
+                  px={8}
                 >
                   Login
                 </Button>
-                <NextLink href="/forgotPassword">
-                  <Link ml="auto" mt={4}>
-                    Forgot Password?
-                  </Link>
-                </NextLink>
               </Flex>
             </Form>
           )}

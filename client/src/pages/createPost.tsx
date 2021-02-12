@@ -1,4 +1,4 @@
-import { Flex, Button, Spinner } from "@chakra-ui/react";
+import { Flex, Button, Spinner, Heading, Divider } from "@chakra-ui/react";
 import { Formik, Form } from "formik";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
@@ -19,50 +19,58 @@ const CreatePost = () => {
 
   return (
     <Layout>
-      <Wrapper size="small">
+      <Wrapper size="normal" formWrapper={true}>
         {fetching || !data?.me ? (
           <Spinner m="auto" mt={8} />
         ) : (
-          <Formik
-            initialValues={{ title: "", text: "" }}
-            onSubmit={async (values) => {
-              const response = await createPost({
-                input: {
-                  title: values.title,
-                  text: values.text,
-                },
-              });
-              if (!response.error) {
-                router.back();
-              }
-            }}
-          >
-            {({ isSubmitting }) => (
-              <Form>
-                <InputField
-                  name="title"
-                  label="Title"
-                  placeholder="Enter a title..."
-                />
-                <InputField
-                  textarea
-                  name="text"
-                  label="Text"
-                  placeholder="Enter post text..."
-                />
-                <Flex>
-                  <Button
-                    type="submit"
-                    isLoading={isSubmitting}
-                    colorScheme={colorScheme}
-                    mt={4}
-                  >
-                    Create Post
-                  </Button>
-                </Flex>
-              </Form>
-            )}
-          </Formik>
+          <>
+            <Heading size="md" mb={4}>
+              Create Post
+            </Heading>
+            <Divider />
+            <Formik
+              initialValues={{ title: "", text: "" }}
+              onSubmit={async (values) => {
+                const response = await createPost({
+                  input: {
+                    title: values.title,
+                    text: values.text,
+                  },
+                });
+                if (!response.error) {
+                  router.back();
+                }
+              }}
+            >
+              {({ isSubmitting }) => (
+                <Form>
+                  <InputField
+                    name="title"
+                    label="Title"
+                    placeholder="Enter a title..."
+                  />
+                  <InputField
+                    textarea
+                    name="text"
+                    label="Text"
+                    placeholder="Enter post text..."
+                  />
+                  <Flex>
+                    <Button
+                      type="submit"
+                      isLoading={isSubmitting}
+                      colorScheme={colorScheme}
+                      mt={6}
+                      ml="auto"
+                      px={8}
+                    >
+                      Post
+                    </Button>
+                  </Flex>
+                </Form>
+              )}
+            </Formik>
+          </>
         )}
       </Wrapper>
     </Layout>

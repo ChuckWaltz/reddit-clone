@@ -29,24 +29,23 @@ const Index = () => {
     },
   });
 
-  const inputBorderColor = useColorModeValue(`gray.400`, "gray.600");
-  const inputBgColor = useColorModeValue("gray.100", "gray.900");
+  const inputCardBGColor = useColorModeValue("white", "rgb(25, 25, 25)");
+  const inputCardTextColor = useColorModeValue("gray.800", "white");
 
   return (
     <Layout size="large">
       <Flex mt={4} flexDir="column">
-        <Flex>
+        <Flex
+          shadow="md"
+          borderWidth="1px"
+          borderRadius={5}
+          backgroundColor={inputCardBGColor}
+          color={inputCardTextColor}
+          p={3}
+          mb={4}
+        >
           <NextLink href="/createPost">
-            <Input
-              type="text"
-              mb={4}
-              mr={4}
-              borderWidth={1}
-              borderColor={inputBorderColor}
-              backgroundColor={inputBgColor}
-              _hover={{ borderColor: `${colorScheme}.500` }}
-              placeholder="Create Post"
-            />
+            <Input type="text" mr={3} placeholder="Create Post" />
           </NextLink>
           <NextLink href="/createPost">
             <Button colorScheme={colorScheme} p={0}>
