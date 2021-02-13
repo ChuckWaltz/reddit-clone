@@ -76,10 +76,11 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
     <Flex
       shadow="md"
       borderWidth="1px"
-      borderRadius={5}
+      borderRadius={8}
       backgroundColor={postCardBGColor}
       color={postCardTextColor}
       flexGrow={1}
+      overflow="hidden"
     >
       <Flex
         flexDir="column"

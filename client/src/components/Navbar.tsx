@@ -86,12 +86,12 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       position="sticky"
       top={0}
       zIndex={100}
-      height={50}
       style={{ boxShadow: "0px 0px 1px 1px rgba(0,0,0,0.5)" }}
+      minH={55}
     >
       <NextLink href="/">
-        <Flex mr="auto" align="center" cursor="pointer">
-          <Icon as={GiWaterSplash} fontSize="3xl" color={linkColor} mr={2} />
+        <Flex mr="auto" align="center" cursor="pointer" fontSize="lg">
+          <Icon as={GiWaterSplash} fontSize="4xl" color={linkColor} mr={2} />
           <b>Redditish</b>
         </Flex>
       </NextLink>

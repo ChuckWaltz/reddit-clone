@@ -1,4 +1,11 @@
-import { Box, Heading, Text } from "@chakra-ui/react";
+import {
+  Box,
+  Flex,
+  Heading,
+  Spinner,
+  Text,
+  useColorModeValue,
+} from "@chakra-ui/react";
 import { withUrqlClient } from "next-urql";
 import { useRouter } from "next/router";
 import React from "react";
@@ -17,10 +24,13 @@ const Post = ({}) => {
     },
   });
 
+  const postBGColor = useColorModeValue("white", "rgb(25, 25, 25)");
+  const postTextColor = useColorModeValue("gray.800", "white");
+
   if (fetching) {
     return (
       <Layout>
-        <div>loading...</div>
+        <Spinner m="auto" mt={8} />
       </Layout>
     );
   }
@@ -34,9 +44,23 @@ const Post = ({}) => {
   }
 
   return (
-    <Layout>
-      <Heading mt={4}>{data.post.title}</Heading>
-      <Text mt={4}>{data.post.text}</Text>
+    <Layout size="large">
+      <Flex
+        flexDir="column"
+        backgroundColor={postBGColor}
+        color={postTextColor}
+        mt={4}
+        p={8}
+        pt={2}
+        borderRadius={5}
+        borderWidth={1}
+      >
+        <Heading mt={4} size="lg">
+          {data.post.title}
+        </Heading>
+        <Text mt={2}>Posted by: {data.post.creator.username}</Text>
+        <Text mt={6}>{data.post.text}</Text>
+      </Flex>
     </Layout>
   );
 };
