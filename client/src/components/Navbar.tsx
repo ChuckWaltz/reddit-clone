@@ -90,12 +90,8 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       position="sticky"
       top={0}
       zIndex={100}
-<<<<<<< HEAD
-      style={{ boxShadow: "0px 0px 1px 2px rgba(0,0,0,0.15)" }}
-=======
       style={{ boxShadow: "0px 0px 1px 1px rgba(0,0,0,0.5)" }}
       minH={55}
->>>>>>> 475adc1c49d1be5838150a4a594b0599e52756f7
     >
       <NextLink href="/">
         <Flex mr="auto" align="center" cursor="pointer" fontSize="lg">

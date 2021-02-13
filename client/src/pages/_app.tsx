@@ -1,6 +1,6 @@
 import theme from "../theme";
 import { AppProps } from "next/app";
-import { Box, ChakraProvider, Flex, Spinner } from "@chakra-ui/react";
+import { ChakraProvider, Flex, Spinner } from "@chakra-ui/react";
 import { colorScheme } from "../utils/constants";
 
 import Router from "next/router";

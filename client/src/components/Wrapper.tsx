@@ -26,11 +26,7 @@ const Wrapper: React.FC<WrapperProps> = ({
       shadow={formWrapper ? "md" : undefined}
       borderRadius={formWrapper ? 5 : undefined}
       mt={formWrapper ? 8 : undefined}
-<<<<<<< HEAD
-      borderWidth={formWrapper ? "1px" : undefined}
-=======
       borderWidth={formWrapper ? 1 : undefined}
->>>>>>> 475adc1c49d1be5838150a4a594b0599e52756f7
     >
       {children}
     </Flex>
