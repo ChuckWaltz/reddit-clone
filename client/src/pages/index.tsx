@@ -38,11 +38,12 @@ const Index = () => {
         <Flex
           shadow="md"
           borderWidth="1px"
-          borderRadius={5}
+          borderRadius={8}
           backgroundColor={inputCardBGColor}
           color={inputCardTextColor}
           p={3}
           mb={4}
+          overflow="hidden"
         >
           <NextLink href="/createPost">
             <Input type="text" mr={3} placeholder="Create Post" />
