@@ -14,7 +14,6 @@ const Wrapper: React.FC<WrapperProps> = ({
   formWrapper = false,
 }) => {
   const formWrapperBGColor = useColorModeValue("white", "rgb(25, 25, 25)");
-  const formWrapperTextColor = useColorModeValue("gray.800", "white");
 
   return (
     <Flex
@@ -27,6 +26,7 @@ const Wrapper: React.FC<WrapperProps> = ({
       shadow={formWrapper ? "md" : undefined}
       borderRadius={formWrapper ? 5 : undefined}
       mt={formWrapper ? 8 : undefined}
+      borderWidth={formWrapper ? "1px" : undefined}
     >
       {children}
     </Flex>

@@ -8,6 +8,9 @@ import {
   MenuList,
   Icon,
   Link,
+  Input,
+  InputGroup,
+  InputLeftElement,
 } from "@chakra-ui/react";
 import React from "react";
 import { DarkModeSwitch } from "./DarkModeSwitch";
@@ -15,6 +18,7 @@ import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { colorScheme } from "../utils/constants";
 import { GiWalrusHead, GiWaterSplash } from "react-icons/gi";
+import { SearchIcon } from "@chakra-ui/icons";
 
 interface NavbarProps {}
 
@@ -86,8 +90,7 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       position="sticky"
       top={0}
       zIndex={100}
-      height={50}
-      style={{ boxShadow: "0px 0px 1px 1px rgba(0,0,0,0.5)" }}
+      style={{ boxShadow: "0px 0px 1px 2px rgba(0,0,0,0.15)" }}
     >
       <NextLink href="/">
         <Flex mr="auto" align="center" cursor="pointer">
@@ -95,6 +98,14 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
           <b>Redditish</b>
         </Flex>
       </NextLink>
+      <InputGroup maxW={500} mr="auto" d="none">
+        <InputLeftElement
+          pointerEvents="none"
+          height="100%"
+          children={<SearchIcon color="gray.300" />}
+        />
+        <Input type="text" placeholder="Search" h="unset" py={1} />
+      </InputGroup>
       {userSection}
       <DarkModeSwitch />
     </Flex>
