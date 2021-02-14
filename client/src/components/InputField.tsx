@@ -31,7 +31,7 @@ const InputField: React.FC<InputFieldProps> = ({
       <FormControl isInvalid={!!error}>
         <FormLabel htmlFor={field.name}>{props.label}</FormLabel>
         {textarea ? (
-          <Textarea {...field} {...props} id={field.name} />
+          <Textarea {...field} {...props} id={field.name} rows={10} />
         ) : (
           <Input {...field} {...props} id={field.name} />
         )}

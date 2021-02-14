@@ -12,6 +12,7 @@ import React from "react";
 import Layout from "../../components/Layout";
 import { usePostQuery } from "../../generated/graphql";
 import { createUrqlClient } from "../../utils/createUrqlClient";
+import { formatPostedDate } from "../../utils/formatPostedDate";
 
 const Post = ({}) => {
   const router = useRouter();
@@ -44,21 +45,24 @@ const Post = ({}) => {
   }
 
   return (
-    <Layout size="large">
+    <Layout size="normal">
       <Flex
         flexDir="column"
         backgroundColor={postBGColor}
         color={postTextColor}
         mt={4}
-        p={8}
-        pt={2}
+        p={6}
+        pt={0}
         borderRadius={5}
         borderWidth={1}
       >
         <Heading mt={4} size="lg">
           {data.post.title}
         </Heading>
-        <Text mt={2}>Posted by: {data.post.creator.username}</Text>
+        <Text fontSize="sm" mt={1}>
+          Posted By: {data.post.creator.username}{" "}
+          {formatPostedDate(data.post.createdAt)} ago
+        </Text>
         <Text mt={6}>{data.post.text}</Text>
       </Flex>
     </Layout>

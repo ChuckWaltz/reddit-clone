@@ -6,6 +6,7 @@ import {
   IconButton,
   Link,
   Text,
+  useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
 import {
@@ -22,6 +23,7 @@ import {
   EditIcon,
 } from "@chakra-ui/icons";
 import NextLink from "next/link";
+import { formatPostedDate } from "../utils/formatPostedDate";
 
 interface PostCardProps {
   post: PostSnippetFragment;
@@ -37,37 +39,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
   );
   const voteButtonDisabled = useColorModeValue("gray.400", "gray.600");
 
-  const formatPostedDate = (dateString: string) => {
-    const now = new Date().getTime() / 1000; //seconds since epoch
-    const date = new Date(dateString).getTime() / 1000; //seconds since epoch
-    const diff = now - date;
-    const mins = diff / 60;
-    const hours = mins / 60;
-    const days = hours / 24;
-
-    if (diff <= 60) return "less than a minute";
-
-    let val: string;
-    if (days > 1) {
-      const d = Math.floor(days);
-      val = d.toString() + " day";
-      if (d > 1) val += "s";
-    } else if (hours > 1) {
-      const h = Math.floor(hours);
-      val = h.toString() + " hour";
-      if (h > 1) val += "s";
-    } else if (mins > 1) {
-      const m = Math.floor(mins);
-      val = m.toString() + " minute";
-      if (m > 1) val += "s";
-    } else {
-      const s = Math.floor(diff);
-      val = s.toString() + " second";
-      if (s > 1) val += "s";
-    }
-    return val;
-  };
-
   const [{ data }] = useMeQuery();
   const [{}, vote] = useVoteMutation();
   const [{}, deletePost] = useDeletePostMutation();
@@ -81,6 +52,8 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
       color={postCardTextColor}
       flexGrow={1}
       overflow="hidden"
+      cursor="pointer"
+      _hover={{ boxShadow: "0px 0px 0px 1px gray" }}
     >
       <Flex
         flexDir="column"
@@ -88,42 +61,37 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
         p={1}
         bgColor={votePanelBGColor}
       >
-        <ChevronUpIcon
-          cursor="pointer"
-          fontSize="2em"
-          color={post.voted === 1 ? voteButtonColor : voteButtonDisabled}
+        <IconButton
+          aria-label="Upvote"
+          icon={
+            <ChevronUpIcon
+              fontSize="2em"
+              color={post.voted === 1 ? voteButtonColor : voteButtonDisabled}
+            />
+          }
           onClick={() => {
             vote({ postId: parseInt(post.id), value: 1 });
           }}
+          _focus={{ outlineColor: "none" }}
         />
         <Box p={1}>{post.points}</Box>
-        <ChevronDownIcon
-          cursor="pointer"
-          fontSize="2em"
-          color={post.voted === -1 ? voteButtonColor : voteButtonDisabled}
+        <IconButton
+          aria-label="Downvote"
+          icon={
+            <ChevronDownIcon
+              fontSize="2em"
+              color={post.voted === -1 ? voteButtonColor : voteButtonDisabled}
+            />
+          }
           onClick={() => {
             vote({ postId: parseInt(post.id), value: -1 });
           }}
+          _focus={{ outlineColor: "none" }}
         />
       </Flex>
       <NextLink href="/post/[id]" as={`/post/${post.id}`}>
-        <Flex
-          flexDirection="column"
-          py={2}
-          px={4}
-          flexGrow={1}
-          cursor="pointer"
-          role="group"
-        >
-          <Heading
-            fontSize="xl"
-            _groupHover={{
-              textDecoration: "underline",
-              color: voteButtonColor,
-            }}
-          >
-            {post.title}
-          </Heading>
+        <Flex flexDirection="column" py={2} px={4} flexGrow={1} role="group">
+          <Heading fontSize="xl">{post.title}</Heading>
           <Text fontSize="xs" mt={1}>
             Posted By: {post.creator.username}{" "}
             {formatPostedDate(post.createdAt)} ago
@@ -147,15 +115,6 @@ const PostCard: React.FC<PostCardProps> = ({ post }) => {
             deletePost({ id: parseInt(post.id) });
           }}
         />
-        {/* <DeleteIcon
-          cursor="pointer"
-          _hover={{ color: "red.500" }}
-          onClick={() => {
-            deletePost({ id: parseInt(post.id) });
-          }}
-          opacity={data?.me?.id === post.creator.id ? 1 : 0}
-          pointerEvents={data?.me?.id === post.creator.id ? "initial" : "none"}
-        /> */}
         <NextLink href="/post/edit/[id]" as={`/post/edit/${post.id}`}>
           <IconButton
             size="sm"

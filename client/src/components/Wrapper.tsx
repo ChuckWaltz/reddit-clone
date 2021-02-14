@@ -18,7 +18,7 @@ const Wrapper: React.FC<WrapperProps> = ({
   return (
     <Flex
       w={size === "small" ? "400px" : size === "large" ? "800px" : "600px"}
-      maxWidth="95vw"
+      maxWidth="100vw"
       mx="auto"
       flexDir="column"
       p={formWrapper ? 4 : undefined}

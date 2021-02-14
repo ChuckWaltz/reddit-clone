@@ -7,10 +7,11 @@ import {
   MenuItem,
   MenuList,
   Icon,
-  Link,
   Input,
   InputGroup,
   InputLeftElement,
+  Text,
+  useBreakpointValue,
 } from "@chakra-ui/react";
 import React from "react";
 import { DarkModeSwitch } from "./DarkModeSwitch";
@@ -41,10 +42,21 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
     userSection = (
       <>
         <NextLink href="/login">
-          <Link mr={5}>Login</Link>
+          <Button
+            colorScheme={colorScheme}
+            variant="outline"
+            mr={4}
+            height="unset"
+            px={5}
+            py={2}
+          >
+            Login
+          </Button>
         </NextLink>
         <NextLink href="/register">
-          <Link mr={5}>Register</Link>
+          <Button colorScheme={colorScheme} mr={4} height="unset" px={5} py={2}>
+            Register
+          </Button>
         </NextLink>
       </>
     );
@@ -96,7 +108,12 @@ const Navbar: React.FC<NavbarProps> = ({}) => {
       <NextLink href="/">
         <Flex mr="auto" align="center" cursor="pointer" fontSize="lg">
           <Icon as={GiWaterSplash} fontSize="4xl" color={linkColor} mr={2} />
-          <b>Redditish</b>
+          <Text
+            display={useBreakpointValue({ base: "none", sm: "flex" })}
+            fontWeight="bold"
+          >
+            Redditish
+          </Text>
         </Flex>
       </NextLink>
       <InputGroup maxW={500} mr="auto" d="none">
