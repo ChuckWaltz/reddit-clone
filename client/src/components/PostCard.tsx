@@ -6,7 +6,6 @@ import {
   IconButton,
   Link,
   Text,
-  useBreakpointValue,
   useColorModeValue,
 } from "@chakra-ui/react";
 import {
