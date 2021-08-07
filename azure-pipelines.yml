@@ -19,5 +19,6 @@ steps:
   displayName: 'Run a multi-line script'
 - task: Docker@2
   inputs:
-    command: 'buildAndPush'
-    Dockerfile: './server/Dockerfile'
+    command: 'build'
+    Dockerfile: '**/Dockerfile'
+    buildContext: '**/server'
