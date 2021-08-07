@@ -13,4 +13,4 @@ steps:
 - task: Docker@2
   inputs:
     command: 'buildAndPush'
-    Dockerfile: '**/server/Dockerfile'
+    Dockerfile: 'server/Dockerfile'
