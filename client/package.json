@@ -1,6 +1,9 @@
 {
   "name": "with-chakra-ui-typescript",
   "version": "1.0.0",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "next",
     "build": "next build",
@@ -17,7 +20,7 @@
     "formik": "^2.2.6",
     "framer-motion": "^2.9.4",
     "graphql": "^15.5.0",
-    "next": "latest",
+    "next": "12.3.4",
     "next-urql": "^2.2.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
