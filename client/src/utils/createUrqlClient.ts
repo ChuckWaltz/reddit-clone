@@ -84,8 +84,14 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
     cookie = ctx?.req?.headers?.cookie; // Need to tell Next.js to send cookie to GraphQL if requests are made via SSR
   }
 
+  // Use relative URL for client-side requests (goes through Next.js rewrite proxy)
+  // Use full URL for server-side requests (SSR)
+  const url = isServer() 
+    ? (process.env.NEXT_PUBLIC_API_URL as string)
+    : '/graphql';
+
   return {
-    url: process.env.NEXT_PUBLIC_API_URL as string,
+    url,
     fetchOptions: {
       credentials: "include" as const,
       headers: cookie ? { cookie } : undefined,

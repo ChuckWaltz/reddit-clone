@@ -67,9 +67,9 @@ const main = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1 Year
         httpOnly: true,
-        sameSite: __prod__ ? "none" : "lax", // "none" required for cross-site cookies
+        sameSite: "lax", // lax works with proxy setup
         secure: __prod__, // cookie only works over https
-        domain: process.env.COOKIE_DOMAIN || undefined, // Remove hardcoded domain
+        domain: undefined, // Let browser handle domain
       },
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET,
