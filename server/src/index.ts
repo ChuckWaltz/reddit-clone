@@ -67,9 +67,9 @@ const main = async () => {
       cookie: {
         maxAge: 1000 * 60 * 60 * 24 * 365, // 1 Year
         httpOnly: true,
-        sameSite: "lax", // protects against csrf (google for info)
+        sameSite: __prod__ ? "none" : "lax", // "none" required for cross-site cookies
         secure: __prod__, // cookie only works over https
-        domain: __prod__ ? ".chuckwaltzapps.com" : undefined,
+        domain: process.env.COOKIE_DOMAIN || undefined, // Remove hardcoded domain
       },
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET,
