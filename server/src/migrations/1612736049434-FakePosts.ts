@@ -1,7 +1,14 @@
 import { MigrationInterface, QueryRunner } from "typeorm";
 
-export class FakePosts1612057401610 implements MigrationInterface {
+export class FakePosts1612736049434 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    // Create a demo user first (password is 'demo123' hashed with argon2)
+    await queryRunner.query(`
+      INSERT INTO "user" (username, email, password, "createdAt", "updatedAt") 
+      VALUES ('demo', 'demo@example.com', '$argon2i$v=19$m=4096,t=3,p=1$c29tZXNhbHQ$WC1r7Dj7jTuT7lF8H5z8eQ', NOW(), NOW())
+      ON CONFLICT (username) DO NOTHING
+    `);
+    
     queryRunner.query(`
     insert into post (title, text, creatorId, createdAt) values ('Suspendisse potenti. Nullam porttitor lacus at turpis.', 'Vestibulum quam sapien, varius ut, blandit non, interdum in, ante. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Duis faucibus accumsan odio. Curabitur convallis. Duis consequat dui nec nisi volutpat eleifend. Donec ut dolor. Morbi vel lectus in quam fringilla rhoncus. Mauris enim leo, rhoncus sed, vestibulum sit amet, cursus id, turpis. Integer aliquet, massa id lobortis convallis, tortor risus dapibus augue, vel accumsan tellus nisi eu orci. Mauris lacinia sapien quis libero. Nullam sit amet turpis elementum ligula vehicula consequat.', 1, '2020-05-11T03:39:52Z');
     insert into post (title, text, creatorId, createdAt) values ('Donec dapibus. Duis at velit eu est congue elementum.', 'Nulla facilisi. Cras non velit nec nisi vulputate nonummy. Maecenas tincidunt lacus at velit. Vivamus vel nulla eget eros elementum pellentesque. Quisque porta volutpat erat. Quisque erat eros, viverra eget, congue eget, semper rutrum, nulla. Nunc purus. Phasellus in felis. Donec semper sapien a libero.', 1, '2020-11-29T10:15:41Z');
