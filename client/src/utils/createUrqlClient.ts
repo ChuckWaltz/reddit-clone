@@ -177,6 +177,8 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                 `,
                 { id: postId, points: voteMutation.vote.points, voted: value }
               );
+              // Invalidate posts cache to refetch with correct sort order
+              invalidateAllPosts(cache);
             },
             /* register: (_result, _args, _cache, _info) => {
             customUpdateQuery<RegisterMutation, MeQuery>(
