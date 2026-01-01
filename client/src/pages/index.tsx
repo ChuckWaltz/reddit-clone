@@ -17,7 +17,10 @@ import PostCard from "../components/PostCard";
 import { GiFountainPen } from "react-icons/gi";
 
 const Index = () => {
-  const [postQueryVariables, setPostQueryVariables] = useState({
+  const [postQueryVariables, setPostQueryVariables] = useState<{
+    limit: number;
+    cursor: string | null;
+  }>({
     limit: 15,
     cursor: null,
   });
@@ -65,9 +68,12 @@ const Index = () => {
           display="inline-flex"
           my={6}
           onClick={() => {
+            const lastPost = data?.posts.posts[data?.posts.posts.length - 1];
             setPostQueryVariables({
               limit: postQueryVariables.limit,
-              cursor: data?.posts.posts[data?.posts.posts.length - 1].createdAt,
+              cursor: lastPost && lastPost.points !== undefined && lastPost.createdAt
+                ? JSON.stringify({ points: lastPost.points, createdAt: lastPost.createdAt })
+                : null,
             });
           }}
         >

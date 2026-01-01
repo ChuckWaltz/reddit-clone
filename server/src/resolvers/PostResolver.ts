@@ -73,16 +73,25 @@ export class PostResolver {
 
     const replacements: any[] = [limitPlusOne];
 
+    let cursorCondition = "";
     if (cursor) {
-      replacements.push(new Date(cursor));
+      try {
+        const cursorData = JSON.parse(cursor);
+        if (cursorData.points !== undefined && cursorData.createdAt) {
+          replacements.push(cursorData.points, new Date(cursorData.createdAt));
+          cursorCondition = `where (p."points" < $2) OR (p."points" = $2 AND p."createdAt" < $3)`;
+        }
+      } catch {
+        // Invalid cursor format, ignore and return from beginning
+      }
     }
 
     const posts = await getConnection().query(
       `
       select p.*
       from post p
-      ${cursor ? `where p."createdAt" < $2` : ""}
-      order by p."createdAt" DESC
+      ${cursorCondition}
+      order by p."points" DESC, p."createdAt" DESC
       limit $1
       `,
       replacements
