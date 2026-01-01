@@ -71,8 +71,8 @@ const Index = () => {
             const lastPost = data?.posts.posts[data?.posts.posts.length - 1];
             setPostQueryVariables({
               limit: postQueryVariables.limit,
-              cursor: lastPost && lastPost.points !== undefined && lastPost.createdAt
-                ? JSON.stringify({ points: lastPost.points, createdAt: lastPost.createdAt })
+              cursor: lastPost && lastPost.points !== undefined && lastPost.createdAt && lastPost.id
+                ? JSON.stringify({ points: lastPost.points, createdAt: lastPost.createdAt, id: lastPost.id })
                 : null,
             });
           }}

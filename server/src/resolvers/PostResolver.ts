@@ -71,31 +71,29 @@ export class PostResolver {
     limit = Math.min(50, limit); // Make sure limit doesn't exceed this cap
     const limitPlusOne = limit + 1;
 
-    const replacements: any[] = [limitPlusOne];
+    const qb = getConnection()
+      .getRepository(Post)
+      .createQueryBuilder("p")
+      .orderBy("p.points", "DESC")
+      .addOrderBy("p.createdAt", "DESC")
+      .addOrderBy("p.id", "DESC")
+      .take(limitPlusOne);
 
-    let cursorCondition = "";
     if (cursor) {
       try {
         const cursorData = JSON.parse(cursor);
-        if (cursorData.points !== undefined && cursorData.createdAt) {
-          replacements.push(cursorData.points, new Date(cursorData.createdAt));
-          cursorCondition = `where (p.points < $2) OR (p.points = $2 AND p."createdAt" < $3)`;
+        if (cursorData.points !== undefined && cursorData.createdAt && cursorData.id) {
+          qb.where(
+            "(p.points < :points) OR (p.points = :points AND p.createdAt < :createdAt) OR (p.points = :points AND p.createdAt = :createdAt AND p.id < :id)",
+            { points: cursorData.points, createdAt: new Date(cursorData.createdAt), id: cursorData.id }
+          );
         }
       } catch {
         // Invalid cursor format, ignore and return from beginning
       }
     }
 
-    const posts = await getConnection().query(
-      `
-      select p.*
-      from post p
-      ${cursorCondition}
-      order by p.points DESC, p."createdAt" DESC
-      limit $1
-      `,
-      replacements
-    );
+    const posts = await qb.getMany();
 
     /* const posts = await getConnection().query(
       `
