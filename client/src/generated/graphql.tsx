@@ -25,7 +25,7 @@ export type Query = {
 
 
 export type QueryPostsArgs = {
-  cursor?: Maybe<Scalars['String']>;
+  offset?: Maybe<Scalars['Int']>;
   limit: Scalars['Int'];
 };
 
@@ -316,7 +316,7 @@ export type PostQuery = (
 
 export type PostsQueryVariables = Exact<{
   limit: Scalars['Int'];
-  cursor?: Maybe<Scalars['String']>;
+  offset?: Maybe<Scalars['Int']>;
 }>;
 
 
@@ -506,8 +506,8 @@ export function usePostQuery(options: Omit<Urql.UseQueryArgs<PostQueryVariables>
   return Urql.useQuery<PostQuery>({ query: PostDocument, ...options });
 };
 export const PostsDocument = gql`
-    query Posts($limit: Int!, $cursor: String) {
-  posts(limit: $limit, cursor: $cursor) {
+    query Posts($limit: Int!, $offset: Int) {
+  posts(limit: $limit, offset: $offset) {
     hasMore
     posts {
       ...PostSnippet

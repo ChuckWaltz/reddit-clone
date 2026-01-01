@@ -19,13 +19,13 @@ import { GiFountainPen } from "react-icons/gi";
 const Index = () => {
   const [postQueryVariables, setPostQueryVariables] = useState({
     limit: 15,
-    cursor: null,
+    offset: 0,
   });
 
   const [{ data, fetching }] = usePostsQuery({
     variables: {
       limit: postQueryVariables.limit,
-      cursor: postQueryVariables.cursor,
+      offset: postQueryVariables.offset,
     },
   });
 
@@ -67,7 +67,7 @@ const Index = () => {
           onClick={() => {
             setPostQueryVariables({
               limit: postQueryVariables.limit,
-              cursor: data?.posts.posts[data?.posts.posts.length - 1].createdAt,
+              offset: postQueryVariables.offset + postQueryVariables.limit,
             });
           }}
         >

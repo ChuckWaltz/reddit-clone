@@ -66,26 +66,21 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("offset", () => Int, { nullable: true }) offset: number | null
   ): Promise<PaginatedPosts> {
     limit = Math.min(50, limit); // Make sure limit doesn't exceed this cap
     const limitPlusOne = limit + 1;
-
-    const replacements: any[] = [limitPlusOne];
-
-    if (cursor) {
-      replacements.push(new Date(cursor));
-    }
+    const actualOffset = offset ?? 0;
 
     const posts = await getConnection().query(
       `
       select p.*
       from post p
-      ${cursor ? `where p."createdAt" < $2` : ""}
-      order by p."createdAt" DESC
+      order by p."points" DESC, p."createdAt" DESC
       limit $1
+      offset $2
       `,
-      replacements
+      [limitPlusOne, actualOffset]
     );
 
     /* const posts = await getConnection().query(
