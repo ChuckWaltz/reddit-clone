@@ -66,27 +66,20 @@ export class PostResolver {
   @Query(() => PaginatedPosts)
   async posts(
     @Arg("limit", () => Int) limit: number,
-    @Arg("cursor", () => String, { nullable: true }) cursor: string | null
+    @Arg("offset", () => Int, { nullable: true, defaultValue: 0 })
+    offset: number,
   ): Promise<PaginatedPosts> {
     limit = Math.min(50, limit); // Make sure limit doesn't exceed this cap
     const limitPlusOne = limit + 1;
 
-    const replacements: any[] = [limitPlusOne];
-
-    if (cursor) {
-      replacements.push(new Date(cursor));
-    }
-
-    const posts = await getConnection().query(
-      `
-      select p.*
-      from post p
-      ${cursor ? `where p."createdAt" < $2` : ""}
-      order by p."createdAt" DESC
-      limit $1
-      `,
-      replacements
-    );
+    const posts = await getConnection()
+      .getRepository(Post)
+      .createQueryBuilder("p")
+      .orderBy("p.points", "DESC")
+      .addOrderBy("p.id", "DESC")
+      .skip(offset)
+      .take(limitPlusOne)
+      .getMany();
 
     /* const posts = await getConnection().query(
       `
@@ -147,7 +140,7 @@ export class PostResolver {
   @UseMiddleware(isAuth)
   createPost(
     @Arg("input") input: PostInput,
-    @Ctx() { req }: MyContext
+    @Ctx() { req }: MyContext,
   ): Promise<Post> {
     return Post.create({
       ...input,
@@ -161,7 +154,7 @@ export class PostResolver {
     @Arg("id", () => Int) id: number,
     @Arg("title") title: string,
     @Arg("text") text: string,
-    @Ctx() { req }: MyContext
+    @Ctx() { req }: MyContext,
   ): Promise<Post | null> {
     const result = await getConnection()
       .createQueryBuilder()
@@ -189,7 +182,7 @@ export class PostResolver {
   @UseMiddleware(isAuth)
   async deletePost(
     @Arg("id", () => Int) id: number,
-    @Ctx() { req }: MyContext
+    @Ctx() { req }: MyContext,
   ): Promise<boolean> {
     await Post.delete({ id, creatorId: req.session.userId });
     return true;
@@ -200,7 +193,7 @@ export class PostResolver {
   async vote(
     @Arg("postId", () => Int) postId: number,
     @Arg("value", () => Int) value: number,
-    @Ctx() { req }: MyContext
+    @Ctx() { req }: MyContext,
   ): Promise<Post | null> {
     const userId = req.session.userId;
 
