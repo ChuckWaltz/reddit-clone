@@ -1,7 +1,7 @@
 import path from "path";
 import express from "express";
 import "reflect-metadata";
-import "dotenv-safe/config";
+import "dotenv/config";
 
 import { createConnection } from "typeorm";
 import { buildSchema } from "type-graphql";
@@ -39,6 +39,7 @@ const main = async () => {
     synchronize: !__prod__,
     migrations: [path.join(__dirname, "./migrations/*")],
     entities: [User, Post, Vote],
+    ssl: __prod__ ? { rejectUnauthorized: false } : undefined,
   });
 
   if (__prod__) await _conn.runMigrations();
@@ -54,7 +55,7 @@ const main = async () => {
     cors({
       origin: process.env.CORS_ORIGIN,
       credentials: true,
-    })
+    }),
   );
 
   app.use(
@@ -74,7 +75,7 @@ const main = async () => {
       saveUninitialized: false,
       secret: process.env.SESSION_SECRET,
       resave: false,
-    })
+    }),
   );
 
   const apolloServer = new ApolloServer({
