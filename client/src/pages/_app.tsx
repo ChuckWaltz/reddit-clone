@@ -4,7 +4,7 @@ import { ChakraProvider, Flex, Spinner } from "@chakra-ui/react";
 import { colorScheme } from "../utils/constants";
 
 import Router from "next/router";
-import React, { useEffect } from "react";
+import React from "react";
 
 Router.events.on("routeChangeStart", () => {
   let loadingOverlay = document.getElementById("loading-overlay");
@@ -21,18 +21,6 @@ Router.events.on("routeChangeError", () => {
 
 function MyApp({ Component, pageProps }: AppProps) {
   const loadingOverlayBgColor = `${colorScheme}.500`;
-
-  // Hide initial splash screen once app is loaded
-  useEffect(() => {
-    const splash = document.getElementById("initial-splash");
-    if (splash) {
-      splash.classList.add("hidden");
-      // Remove from DOM after fade out animation
-      setTimeout(() => {
-        splash.remove();
-      }, 300);
-    }
-  }, []);
 
   return (
     <ChakraProvider resetCSS theme={theme}>

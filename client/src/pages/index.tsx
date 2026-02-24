@@ -6,48 +6,22 @@ import {
   Flex,
   Icon,
   Input,
-  Skeleton,
-  SkeletonText,
   Stack,
   useColorModeValue,
 } from "@chakra-ui/react";
 import Layout from "../components/Layout";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { colorScheme } from "../utils/constants";
 import NextLink from "next/link";
 import PostCard from "../components/PostCard";
 import { GiFountainPen } from "react-icons/gi";
 
-const PostCardSkeleton = () => {
-  const bg = useColorModeValue("white", "rgb(25, 25, 25)");
-  const sideBg = useColorModeValue("gray.100", "rgb(35, 35, 35)");
-
-  return (
-    <Flex
-      shadow="md"
-      borderWidth="1px"
-      borderRadius={8}
-      backgroundColor={bg}
-      overflow="hidden"
-    >
-      <Flex
-        flexDir="column"
-        alignItems="center"
-        p={3}
-        bgColor={sideBg}
-        w="50px"
-      >
-        <Skeleton h="24px" w="24px" mb={2} />
-        <Skeleton h="16px" w="20px" mb={2} />
-        <Skeleton h="24px" w="24px" />
-      </Flex>
-      <Flex flexDirection="column" py={3} px={4} flexGrow={1}>
-        <Skeleton h="20px" w="60%" mb={2} />
-        <Skeleton h="12px" w="40%" mb={4} />
-        <SkeletonText noOfLines={2} spacing={2} />
-      </Flex>
-    </Flex>
-  );
+const hideSplash = () => {
+  const splash = document.getElementById("initial-splash");
+  if (splash) {
+    splash.classList.add("hidden");
+    setTimeout(() => splash.remove(), 300);
+  }
 };
 
 const Index = () => {
@@ -62,6 +36,13 @@ const Index = () => {
       offset: postQueryVariables.offset,
     },
   });
+
+  // Hide splash screen once we have data (API has responded)
+  useEffect(() => {
+    if (data) {
+      hideSplash();
+    }
+  }, [data]);
 
   const inputCardBGColor = useColorModeValue("white", "rgb(25, 25, 25)");
   const inputCardTextColor = useColorModeValue("gray.800", "white");
@@ -89,13 +70,9 @@ const Index = () => {
           </NextLink>
         </Flex>
         <Stack spacing={4}>
-          {fetching && !data
-            ? Array.from({ length: 5 }).map((_, i) => (
-                <PostCardSkeleton key={i} />
-              ))
-            : data?.posts.posts.map((p) =>
-                !p ? null : <PostCard key={p.id} post={p} />,
-              )}
+          {data?.posts.posts.map((p) =>
+            !p ? null : <PostCard key={p.id} post={p} />,
+          )}
         </Stack>
         <Button
           disabled={fetching || !data || !data.posts.hasMore}
