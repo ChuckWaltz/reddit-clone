@@ -92,6 +92,11 @@ const main = async () => {
     }),
   });
 
+  // Health check endpoint to keep Render free tier from spinning down
+  app.get("/health", (_req, res) => {
+    res.status(200).json({ status: "ok" });
+  });
+
   apolloServer.applyMiddleware({ app, cors: false });
 
   app.listen(parseInt(process.env.PORT), () => {
